@@ -1,4 +1,4 @@
-.PHONY: up down logs shell migrate test runserver
+.PHONY: up down logs shell migrate test lint runserver
 
 up:
 	docker-compose up -d
@@ -17,6 +17,9 @@ migrate:
 
 test:
 	docker-compose exec web pytest
+
+lint:
+	docker-compose exec web ruff check .
 
 runserver:
 	docker-compose exec web python manage.py runserver 0.0.0.0:8000

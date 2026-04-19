@@ -1,0 +1,10 @@
+line-length = 88
+target-version = "py312"
+
+[lint]
+select = ["E", "F", "W", "I"]   # pycodestyle errors/warnings, pyflakes, isort
+ignore = ["E501"]                # line-length handled by black
+
+[lint.per-file-ignores]
+"*/migrations/*" = ["E501", "F401"]
+"*/tests/*" = ["F811"]           # allow fixture redefinition
