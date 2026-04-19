@@ -1,0 +1,7 @@
+version: "3.9"
+
+services:
+  web:
+    command: sleep infinity
+    environment:
+      - PYTHONUNBUFFERED=1
