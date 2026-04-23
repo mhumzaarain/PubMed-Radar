@@ -1,6 +1,7 @@
 import factory
 
 from apps.users.factories import UserFactory
+
 from .models import Radar
 
 

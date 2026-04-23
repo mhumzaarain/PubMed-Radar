@@ -5,7 +5,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /workspace/backend
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+COPY pyproject.toml .
+RUN pip install --no-cache-dir ".[dev]"
 
 COPY . .

@@ -1,5 +1,6 @@
 from datetime import timedelta
-from decouple import config, Csv
+
+from decouple import Csv, config
 
 SECRET_KEY = config("SECRET_KEY", default="dev-secret-change-me")
 DEBUG = config("DEBUG", default=False, cast=bool)

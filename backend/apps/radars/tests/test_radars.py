@@ -2,9 +2,9 @@ import pytest
 from rest_framework.test import APIClient
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from apps.users.factories import UserFactory
 from apps.radars.factories import RadarFactory
 from apps.radars.models import Radar
+from apps.users.factories import UserFactory
 
 RADARS_URL = "/api/radars/"
 

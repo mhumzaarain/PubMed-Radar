@@ -6,7 +6,7 @@
   ],
   "service": "web",
   "workspaceFolder": "/workspace/backend",
-  "postCreateCommand": "pip install -r requirements.txt",
+  "postCreateCommand": "pip install '.[dev]'",
   "customizations": {
     "vscode": {
       "extensions": [
