@@ -6,13 +6,19 @@
   ],
   "service": "web",
   "workspaceFolder": "/workspace/backend",
-  "postCreateCommand": "pip install '.[dev]'",
+  "postCreateCommand": "bash /workspace/.devcontainer/post-create.sh",
+  "features": {
+    "ghcr.io/astral-sh/uv/install-uv:1": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+    "ghcr.io/devcontainers/features/node:1": {}
+  },
   "customizations": {
     "vscode": {
       "extensions": [
         "ms-python.python",
         "ms-python.pylance",
-        "ms-python.black-formatter",
+        "charliermarsh.ruff",
         "ms-azuretools.vscode-docker",
         "mtxr.sqltools",
         "mtxr.sqltools-driver-pg"
@@ -20,7 +26,9 @@
       "settings": {
         "python.defaultInterpreterPath": "/usr/local/bin/python",
         "editor.formatOnSave": true,
-        "editor.defaultFormatter": "ms-python.black-formatter"
+        "[python]": {
+          "editor.defaultFormatter": "charliermarsh.ruff"
+        }
       }
     }
   },
