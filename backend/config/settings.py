@@ -106,6 +106,8 @@ REST_FRAMEWORK = {
         "register": "10/hour",
         "login": "20/hour",
     },
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "PAGE_SIZE": 20,
 }
 
 # --- SimpleJWT ---
