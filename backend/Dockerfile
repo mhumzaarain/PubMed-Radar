@@ -1,11 +1,14 @@
-FROM python:3.12-slim
+FROM mcr.microsoft.com/devcontainers/python:3.12
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
 WORKDIR /workspace/backend
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
+
+COPY pyproject.toml uv.lock ./
+RUN uv sync --frozen --extra dev --no-install-project
 
 COPY . .
+RUN uv sync --frozen --extra dev

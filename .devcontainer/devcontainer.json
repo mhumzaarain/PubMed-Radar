@@ -5,24 +5,26 @@
     "docker-compose.devcontainer.yml"
   ],
   "service": "web",
-  "workspaceFolder": "/workspace/backend",
-  "postCreateCommand": "pip install -r requirements.txt",
+  "workspaceFolder": "/workspace",
+  "postCreateCommand": "sh /workspace/.devcontainer/post-create.sh",
+  "features": {
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+"ghcr.io/devcontainers/features/node:1": {}
+  },
   "customizations": {
     "vscode": {
       "extensions": [
         "ms-python.python",
         "ms-python.pylance",
-        "ms-python.black-formatter",
+        "charliermarsh.ruff",
         "ms-azuretools.vscode-docker",
         "mtxr.sqltools",
         "mtxr.sqltools-driver-pg"
       ],
       "settings": {
-        "python.defaultInterpreterPath": "/usr/local/bin/python",
-        "editor.formatOnSave": true,
-        "editor.defaultFormatter": "ms-python.black-formatter"
+        "python.terminal.activateEnvironment": true
       }
     }
   },
-  "remoteUser": "root"
+  "remoteUser": "vscode"
 }

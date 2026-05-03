@@ -1,12 +1,12 @@
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
-from rest_framework_simplejwt.exceptions import TokenError
 
 from .serializers import RegisterSerializer
-from .throttles import RegisterThrottle, LoginThrottle
+from .throttles import LoginThrottle, RegisterThrottle
 
 
 class RegisterView(generics.CreateAPIView):

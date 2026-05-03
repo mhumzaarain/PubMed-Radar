@@ -5,3 +5,5 @@ services:
     command: sleep infinity
     environment:
       - PYTHONUNBUFFERED=1
+    volumes:
+      - .:/workspace

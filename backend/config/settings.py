@@ -1,5 +1,6 @@
 from datetime import timedelta
-from decouple import config, Csv
+
+from decouple import Csv, config
 
 SECRET_KEY = config("SECRET_KEY", default="dev-secret-change-me")
 DEBUG = config("DEBUG", default=False, cast=bool)
@@ -105,6 +106,8 @@ REST_FRAMEWORK = {
         "register": "10/hour",
         "login": "20/hour",
     },
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "PAGE_SIZE": 20,
 }
 
 # --- SimpleJWT ---
@@ -121,6 +124,8 @@ SIMPLE_JWT = {
 }
 
 # --- CORS ---
-_cors_origins = config("CORS_ALLOWED_ORIGINS", default="http://localhost:5173,http://localhost:3000")
+_cors_origins = config(
+    "CORS_ALLOWED_ORIGINS", default="http://localhost:5173,http://localhost:3000"
+)
 CORS_ALLOWED_ORIGINS = [origin.strip() for origin in _cors_origins.split(",") if origin.strip()]
 CORS_ALLOW_CREDENTIALS = True
