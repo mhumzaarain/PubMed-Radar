@@ -1,15 +1,12 @@
-#!/usr/bin/env bash
-set -euo pipefail
+#!/bin/sh
+set -eu
 
 cd /workspace/backend
+/usr/local/bin/uv sync --extra dev
 
-echo "--- Syncing dependencies ---"
-uv sync --extra dev
-
-echo "--- Registering CLI completion ---"
-uv run cli --install-completion
-
-echo "--- Initialising workspace ---"
-uv run cli init-workspace
-
-echo "--- Done ---"
+if [ ! -f /workspace/.env ] && [ -f /workspace/.env.example ]; then
+    cp /workspace/.env.example /workspace/.env
+    echo ".env created from .env.example"
+elif [ -f /workspace/.env ]; then
+    echo ".env already exists — skipping."
+fi

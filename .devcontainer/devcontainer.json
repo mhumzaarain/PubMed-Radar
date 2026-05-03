@@ -5,13 +5,11 @@
     "docker-compose.devcontainer.yml"
   ],
   "service": "web",
-  "workspaceFolder": "/workspace/backend",
-  "postCreateCommand": "bash /workspace/.devcontainer/post-create.sh",
+  "workspaceFolder": "/workspace",
+  "postCreateCommand": "sh /workspace/.devcontainer/post-create.sh",
   "features": {
-    "ghcr.io/astral-sh/uv/install-uv:1": {},
     "ghcr.io/devcontainers/features/github-cli:1": {},
-    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
-    "ghcr.io/devcontainers/features/node:1": {}
+"ghcr.io/devcontainers/features/node:1": {}
   },
   "customizations": {
     "vscode": {
@@ -24,13 +22,9 @@
         "mtxr.sqltools-driver-pg"
       ],
       "settings": {
-        "python.defaultInterpreterPath": "/usr/local/bin/python",
-        "editor.formatOnSave": true,
-        "[python]": {
-          "editor.defaultFormatter": "charliermarsh.ruff"
-        }
+        "python.terminal.activateEnvironment": true
       }
     }
   },
-  "remoteUser": "root"
+  "remoteUser": "vscode"
 }

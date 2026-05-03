@@ -51,6 +51,12 @@ def logs() -> None:
 
 
 @app.command()
+def serve() -> None:
+    """Start the Django development server."""
+    _run("python", "manage.py", "runserver", "0.0.0.0:8000")
+
+
+@app.command()
 def test(
     path: Annotated[Optional[str], typer.Argument()] = None,
 ) -> None:

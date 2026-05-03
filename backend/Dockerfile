@@ -1,8 +1,7 @@
-FROM python:3.12-slim
+FROM mcr.microsoft.com/devcontainers/python:3.12
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1 \
-    UV_SYSTEM_PYTHON=1
+    PYTHONUNBUFFERED=1
 
 WORKDIR /workspace/backend
 
