@@ -11,9 +11,11 @@ dependencies = [
     "djangorestframework==3.15.2",
     "djangorestframework-simplejwt==5.3.1",
     "django-cors-headers==4.6.0",
-    "psycopg2-binary==2.9.10",
+    "psycopg[binary]>=3.2",
     "python-decouple==3.8",
     "requests>=2.31",
+    "procrastinate[django]>=3.0",
+    "openai>=1.50",
 ]
 
 [project.optional-dependencies]
