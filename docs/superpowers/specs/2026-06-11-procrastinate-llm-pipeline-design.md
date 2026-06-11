@@ -84,6 +84,17 @@ its failure cases). Chain chosen.
 `POST /api/radars/{id}/fetch/` defers `fetch_radar_task` and returns
 `202 Accepted` with `{"status": "queued"}` instead of running synchronously.
 
+### Concurrency & rate limits
+
+When multiple radars are due, the dispatcher queues all their fetch jobs at once, but
+the worker runs with default concurrency (one job at a time), so fetches — and the
+summarize jobs they spawn — execute sequentially. This is deliberate: PubMed allows
+only 3 requests/second without an API key, and sequential execution also naturally
+rate-limits LLM calls (relevant for free tiers and local models). Each radar fetch
+costs 2 PubMed requests (esearch + efetch) and ingests at most 100 papers
+(`max_results=100`). Worker concurrency can be raised later via
+`procrastinate worker --concurrency=N` if throughput ever becomes a problem.
+
 ## LLM summarizer service
 
 `services/summarizer.py` exposes `summarize(paper) -> dict`, using the `openai`
