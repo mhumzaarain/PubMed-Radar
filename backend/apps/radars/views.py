@@ -4,7 +4,7 @@ from rest_framework.response import Response
 
 from .models import Radar
 from .serializers import RadarSerializer
-from .tasks import fetch_radar
+from .tasks import defer_fetch
 
 
 class RadarViewSet(viewsets.ModelViewSet):
@@ -18,5 +18,5 @@ class RadarViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=["post"], url_path="fetch")
     def fetch(self, request, pk=None):
         radar = self.get_object()
-        new_papers = fetch_radar(radar.id)
-        return Response({"new_papers": new_papers}, status=status.HTTP_200_OK)
+        defer_fetch(radar.id)
+        return Response({"status": "queued"}, status=status.HTTP_202_ACCEPTED)
