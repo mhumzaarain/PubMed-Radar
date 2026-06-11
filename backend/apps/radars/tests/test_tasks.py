@@ -112,6 +112,14 @@ class TestFetchRadarTask:
         fetch_radar_task(radar_id=str(uuid.uuid4()))
         assert procrastinate_in_memory.connector.jobs == {}
 
+    def test_retry_does_not_duplicate_summarize_jobs(self, procrastinate_in_memory):
+        radar = RadarFactory()
+        search, fetch = _patch_pubmed(["38000001"], [SAMPLE_PAPER_DICT])
+        with search, fetch:
+            fetch_radar_task(radar_id=str(radar.id))
+            fetch_radar_task(radar_id=str(radar.id))
+        assert len(_jobs(procrastinate_in_memory, SUMMARIZE_TASK)) == 1
+
 
 @pytest.mark.django_db
 class TestDeferFetch:

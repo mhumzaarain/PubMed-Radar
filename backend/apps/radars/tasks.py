@@ -70,7 +70,14 @@ def fetch_radar_task(radar_id: str):
         paper_radars__radar__id=radar_id, aisummary__isnull=True
     ).exclude(abstract="")
     for paper in unsummarized:
-        summarize_paper_task.defer(paper_id=str(paper.id))
+        # The lock only dedupes jobs still awaiting execution; combined with
+        # summarize_paper_task's own idempotency guard that closes the gap.
+        try:
+            summarize_paper_task.configure(
+                queueing_lock=f"summarize-paper-{paper.id}"
+            ).defer(paper_id=str(paper.id))
+        except AlreadyEnqueued:
+            pass
 
 
 def defer_fetch(radar_id) -> None:
