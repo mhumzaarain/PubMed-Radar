@@ -15,7 +15,7 @@ dependencies = [
     "python-decouple==3.8",
     "requests>=2.31",
     "procrastinate[django]>=3.0",
-    "openai>=1.50",
+    "openai>=2.0",
 ]
 
 [project.optional-dependencies]
