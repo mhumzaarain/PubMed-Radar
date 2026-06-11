@@ -1,13 +1,15 @@
 import uuid
-from datetime import date
+from datetime import date, timedelta
 from unittest.mock import patch
 
 import pytest
+from django.utils import timezone
 
 from apps.papers.factories import AISummaryFactory, PaperFactory, PaperRadarFactory
 from apps.papers.models import Paper, PaperRadar
 from apps.radars.factories import RadarFactory
-from apps.radars.tasks import defer_fetch, fetch_radar, fetch_radar_task
+from apps.radars.models import Radar
+from apps.radars.tasks import defer_fetch, dispatch_due_radars, fetch_radar, fetch_radar_task
 
 SAMPLE_PAPER_DICT = {
     "pmid": "38000001",
@@ -134,4 +136,48 @@ class TestDeferFetch:
         radar = RadarFactory()
         defer_fetch(radar.id)
         defer_fetch(radar.id)
+        assert len(_jobs(procrastinate_in_memory, FETCH_TASK)) == 1
+
+
+@pytest.mark.django_db
+class TestDispatchDueRadars:
+    def test_never_fetched_radar_is_dispatched(self, procrastinate_in_memory):
+        radar = RadarFactory(last_fetched_at=None)
+        dispatch_due_radars(timestamp=0)
+        jobs = _jobs(procrastinate_in_memory, FETCH_TASK)
+        assert len(jobs) == 1
+        assert jobs[0]["args"] == {"radar_id": str(radar.id)}
+
+    def test_overdue_daily_dispatched_recent_daily_not(self, procrastinate_in_memory):
+        now = timezone.now()
+        overdue = RadarFactory(schedule=Radar.DAILY, last_fetched_at=now - timedelta(hours=25))
+        RadarFactory(schedule=Radar.DAILY, last_fetched_at=now - timedelta(hours=1))
+        dispatch_due_radars(timestamp=0)
+        jobs = _jobs(procrastinate_in_memory, FETCH_TASK)
+        assert len(jobs) == 1
+        assert jobs[0]["args"] == {"radar_id": str(overdue.id)}
+
+    def test_weekly_not_due_after_three_days(self, procrastinate_in_memory):
+        now = timezone.now()
+        RadarFactory(schedule=Radar.WEEKLY, last_fetched_at=now - timedelta(days=3))
+        dispatch_due_radars(timestamp=0)
+        assert _jobs(procrastinate_in_memory, FETCH_TASK) == []
+
+    def test_weekly_due_after_eight_days(self, procrastinate_in_memory):
+        now = timezone.now()
+        radar = RadarFactory(schedule=Radar.WEEKLY, last_fetched_at=now - timedelta(days=8))
+        dispatch_due_radars(timestamp=0)
+        jobs = _jobs(procrastinate_in_memory, FETCH_TASK)
+        assert len(jobs) == 1
+        assert jobs[0]["args"] == {"radar_id": str(radar.id)}
+
+    def test_inactive_radar_excluded(self, procrastinate_in_memory):
+        RadarFactory(is_active=False, last_fetched_at=None)
+        dispatch_due_radars(timestamp=0)
+        assert _jobs(procrastinate_in_memory, FETCH_TASK) == []
+
+    def test_double_dispatch_queues_each_radar_once(self, procrastinate_in_memory):
+        RadarFactory(last_fetched_at=None)
+        dispatch_due_radars(timestamp=0)
+        dispatch_due_radars(timestamp=3600)
         assert len(_jobs(procrastinate_in_memory, FETCH_TASK)) == 1

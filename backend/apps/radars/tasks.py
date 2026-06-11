@@ -1,6 +1,7 @@
 import logging
 from datetime import timedelta
 
+from django.db.models import Q
 from django.utils import timezone
 from procrastinate import RetryStrategy
 from procrastinate.contrib.django import app
@@ -88,3 +89,24 @@ def defer_fetch(radar_id) -> None:
         )
     except AlreadyEnqueued:
         logger.info("Fetch for radar %s already queued, skipping", radar_id)
+
+
+SCHEDULE_INTERVALS = {
+    Radar.DAILY: timedelta(hours=24),
+    Radar.WEEKLY: timedelta(days=7),
+}
+
+
+@app.periodic(cron="0 * * * *")
+@app.task
+def dispatch_due_radars(timestamp: int):
+    """Hourly heartbeat: queue a fetch for every active radar whose schedule
+    interval has elapsed since last_fetched_at (or that has never been fetched)."""
+    now = timezone.now()
+    due = Radar.objects.filter(is_active=True).filter(
+        Q(last_fetched_at__isnull=True)
+        | Q(schedule=Radar.DAILY, last_fetched_at__lt=now - SCHEDULE_INTERVALS[Radar.DAILY])
+        | Q(schedule=Radar.WEEKLY, last_fetched_at__lt=now - SCHEDULE_INTERVALS[Radar.WEEKLY])
+    )
+    for radar in due:
+        defer_fetch(radar.id)
