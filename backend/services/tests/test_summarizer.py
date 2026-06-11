@@ -100,6 +100,13 @@ class TestParseSummaryResponse:
         with pytest.raises(SummarizationError):
             parse_summary_response(raw)
 
+    def test_long_methodology_values_truncated(self):
+        long_value = "x" * 600
+        raw = VALID_RESPONSE.replace("LIDC-IDRI", long_value).replace("1018", "9" * 300)
+        data = parse_summary_response(raw)
+        assert len(data["dataset_used"]) == 500
+        assert len(data["sample_size"]) == 255
+
 
 class TestSummarize:
     def test_calls_llm_and_returns_parsed_data(self, settings):

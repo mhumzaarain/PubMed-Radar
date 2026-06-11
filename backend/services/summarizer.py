@@ -51,10 +51,10 @@ def _strip_code_fences(text: str) -> str:
     return _FENCE_RE.sub("", text.strip()).strip()
 
 
-def _optional_str(value) -> str | None:
+def _optional_str(value, max_length: int) -> str | None:
     if value is None:
         return None
-    return str(value)
+    return str(value)[:max_length]
 
 
 def parse_summary_response(text: str) -> dict:
@@ -95,13 +95,14 @@ def parse_summary_response(text: str) -> dict:
     if not isinstance(methodology, dict):
         methodology = {}
 
+    # Limits mirror AISummary's CharField max_lengths to avoid DB errors burning retries.
     return {
         "one_line_summary": one_line_summary,
         "key_findings_json": [str(item) for item in key_findings],
-        "dataset_used": _optional_str(methodology.get("dataset")),
-        "model_architecture": _optional_str(methodology.get("model_architecture")),
-        "sample_size": _optional_str(methodology.get("sample_size")),
-        "reported_metrics": _optional_str(methodology.get("reported_metrics")),
+        "dataset_used": _optional_str(methodology.get("dataset"), 500),
+        "model_architecture": _optional_str(methodology.get("model_architecture"), 500),
+        "sample_size": _optional_str(methodology.get("sample_size"), 255),
+        "reported_metrics": _optional_str(methodology.get("reported_metrics"), 500),
         "relevance_score": relevance_score,
         "novelty_tag": novelty_tag,
     }

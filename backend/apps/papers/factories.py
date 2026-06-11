@@ -38,7 +38,7 @@ class AISummaryFactory(factory.django.DjangoModelFactory):
     key_findings_json = factory.LazyFunction(lambda: ["Finding 1", "Finding 2"])
     relevance_score = factory.fuzzy.FuzzyInteger(1, 5)
     novelty_tag = "incremental"
-    model_used = "claude-sonnet-4-20250514"
+    model_used = "test-model"
 
 
 class UserPaperActionFactory(factory.django.DjangoModelFactory):
