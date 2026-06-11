@@ -2,7 +2,12 @@ import pytest
 from rest_framework.test import APIClient
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from apps.papers.factories import AISummaryFactory, PaperFactory, PaperRadarFactory, UserPaperActionFactory
+from apps.papers.factories import (
+    AISummaryFactory,
+    PaperFactory,
+    PaperRadarFactory,
+    UserPaperActionFactory,
+)
 from apps.radars.factories import RadarFactory
 from apps.users.factories import UserFactory
 
