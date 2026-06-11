@@ -13,6 +13,7 @@ dependencies = [
     "django-cors-headers==4.6.0",
     "psycopg2-binary==2.9.10",
     "python-decouple==3.8",
+    "requests>=2.31",
 ]
 
 [project.optional-dependencies]
@@ -39,7 +40,7 @@ ignore = ["**/migrations", "**/notebooks"]
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "config.settings"
-testpaths = ["apps"]
+testpaths = ["apps", "services"]
 python_files = ["tests.py", "test_*.py", "*_tests.py"]
 asyncio_mode = "auto"
 timeout = 60
