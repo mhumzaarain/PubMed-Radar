@@ -88,6 +88,18 @@ class TestParseSummaryResponse:
         assert data["reported_metrics"] is None
         assert data["key_findings_json"] == []
 
+    def test_strips_single_line_fence(self):
+        single_line = (
+            '```json{"one_line_summary": "S.", "relevance_score": 2, "novelty_tag": "review"}```'
+        )
+        data = parse_summary_response(single_line)
+        assert data["one_line_summary"] == "S."
+
+    def test_boolean_relevance_score_raises(self):
+        raw = VALID_RESPONSE.replace('"relevance_score": 4', '"relevance_score": true')
+        with pytest.raises(SummarizationError):
+            parse_summary_response(raw)
+
 
 class TestSummarize:
     def test_calls_llm_and_returns_parsed_data(self, settings):

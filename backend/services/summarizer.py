@@ -1,4 +1,5 @@
 import json
+import re
 
 from django.conf import settings
 from openai import OpenAI
@@ -43,16 +44,11 @@ def _get_client() -> OpenAI:
     )
 
 
+_FENCE_RE = re.compile(r"^```[a-zA-Z]*\s*|\s*```$")
+
+
 def _strip_code_fences(text: str) -> str:
-    text = text.strip()
-    if text.startswith("```"):
-        lines = text.splitlines()
-        if lines and lines[-1].strip().startswith("```"):
-            lines = lines[1:-1]
-        else:
-            lines = lines[1:]
-        text = "\n".join(lines).strip()
-    return text
+    return _FENCE_RE.sub("", text.strip()).strip()
 
 
 def _optional_str(value) -> str | None:
@@ -82,12 +78,13 @@ def parse_summary_response(text: str) -> dict:
     if novelty_tag not in NOVELTY_TAGS:
         raise SummarizationError(f"Invalid novelty_tag: {novelty_tag!r}")
 
+    raw_score = data.get("relevance_score")
+    if isinstance(raw_score, bool):
+        raise SummarizationError(f"Invalid relevance_score: {raw_score!r}")
     try:
-        relevance_score = int(data.get("relevance_score"))
+        relevance_score = int(raw_score)
     except (TypeError, ValueError) as exc:
-        raise SummarizationError(
-            f"Invalid relevance_score: {data.get('relevance_score')!r}"
-        ) from exc
+        raise SummarizationError(f"Invalid relevance_score: {raw_score!r}") from exc
     relevance_score = max(1, min(5, relevance_score))
 
     key_findings = data.get("key_findings") or []
