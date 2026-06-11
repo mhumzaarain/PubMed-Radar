@@ -19,6 +19,8 @@ def summarize_paper_task(paper_id: str):
     except Paper.DoesNotExist:
         logger.warning("Paper %s no longer exists, skipping summarization", paper_id)
         return
+    # Fast-path skip; the OneToOne constraint on AISummary.paper is the real
+    # idempotency guarantee if concurrent workers race past this check.
     if AISummary.objects.filter(paper=paper).exists():
         return
     data = summarizer.summarize(paper)

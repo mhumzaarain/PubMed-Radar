@@ -6,6 +6,7 @@ import pytest
 from apps.papers.factories import AISummaryFactory, PaperFactory
 from apps.papers.models import AISummary
 from apps.papers.tasks import summarize_paper_task
+from services.summarizer import SummarizationError
 
 SUMMARY_DATA = {
     "one_line_summary": "Test summary.",
@@ -42,4 +43,16 @@ class TestSummarizePaperTask:
         with patch("apps.papers.tasks.summarizer.summarize") as mock_summarize:
             summarize_paper_task(paper_id=str(uuid.uuid4()))
         mock_summarize.assert_not_called()
+        assert AISummary.objects.count() == 0
+
+    def test_summarization_error_propagates_for_retry(self):
+        paper = PaperFactory()
+        with (
+            patch(
+                "apps.papers.tasks.summarizer.summarize",
+                side_effect=SummarizationError("bad JSON"),
+            ),
+            pytest.raises(SummarizationError),
+        ):
+            summarize_paper_task(paper_id=str(paper.id))
         assert AISummary.objects.count() == 0
