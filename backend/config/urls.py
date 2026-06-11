@@ -11,6 +11,7 @@ def api_root(request):
     return Response({
         "auth": request.build_absolute_uri("/api/auth/"),
         "radars": request.build_absolute_uri("/api/radars/"),
+        "papers": request.build_absolute_uri("/api/papers/"),
         "admin": request.build_absolute_uri("/admin/"),
     })
 
@@ -27,4 +28,5 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/auth/", include("apps.users.urls")),
     path("api/radars/", include("apps.radars.urls")),
+    path("api/papers/", include("apps.papers.urls")),
 ]

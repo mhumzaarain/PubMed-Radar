@@ -20,11 +20,13 @@ THIRD_PARTY_APPS = [
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
     "corsheaders",
+    "procrastinate.contrib.django",
 ]
 
 LOCAL_APPS = [
     "apps.users",
     "apps.radars",
+    "apps.papers",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -129,3 +131,9 @@ _cors_origins = config(
 )
 CORS_ALLOWED_ORIGINS = [origin.strip() for origin in _cors_origins.split(",") if origin.strip()]
 CORS_ALLOW_CREDENTIALS = True
+
+# --- LLM (any OpenAI-compatible endpoint) ---
+LLM_BASE_URL = config("LLM_BASE_URL", default="https://api.openai.com/v1")
+LLM_API_KEY = config("LLM_API_KEY", default="")
+LLM_MODEL = config("LLM_MODEL", default="gpt-4o-mini")
+LLM_TIMEOUT = config("LLM_TIMEOUT", default=60, cast=int)

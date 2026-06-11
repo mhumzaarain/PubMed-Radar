@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import shutil
 import subprocess
 from pathlib import Path
 from typing import Annotated, Optional
@@ -24,7 +25,12 @@ def _run(*cmd: str) -> None:
 
 
 def _exec(*inner_cmd: str) -> None:
-    _run(*_compose("exec", "web", *inner_cmd))
+    """Run in the web container, or directly when Docker is unavailable
+    (e.g., inside the devcontainer where the backend runs natively)."""
+    if shutil.which("docker"):
+        _run(*_compose("exec", "web", *inner_cmd))
+    else:
+        _run(*inner_cmd)
 
 
 @app.command()
@@ -132,8 +138,6 @@ def generate_secret_key() -> None:
 @app.command()
 def init_workspace() -> None:
     """Copy .env.example to .env if .env does not exist."""
-    import shutil
-
     env_file = ROOT_DIR / ".env"
     env_example = ROOT_DIR / ".env.example"
     if env_file.exists():
