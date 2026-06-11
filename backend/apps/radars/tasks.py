@@ -108,5 +108,7 @@ def dispatch_due_radars(timestamp: int):
         | Q(schedule=Radar.DAILY, last_fetched_at__lt=now - SCHEDULE_INTERVALS[Radar.DAILY])
         | Q(schedule=Radar.WEEKLY, last_fetched_at__lt=now - SCHEDULE_INTERVALS[Radar.WEEKLY])
     )
-    for radar in due:
+    due_radars = list(due)
+    logger.info("Dispatching %d due radar(s)", len(due_radars))
+    for radar in due_radars:
         defer_fetch(radar.id)
