@@ -226,3 +226,89 @@ class TestUserPaperActions:
             f"{PAPERS_URL}{paper.id}/actions/", {"is_read": True}, format="json"
         )
         assert response.status_code == 403
+
+
+@pytest.mark.django_db
+class TestPaperListEnrichment:
+    def test_list_includes_aisummary_card_fields(self, auth_client):
+        client, user = auth_client
+        radar = RadarFactory(user=user)
+        pr = PaperRadarFactory(radar=radar)
+        AISummaryFactory(
+            paper=pr.paper,
+            one_line_summary="One-liner.",
+            relevance_score=4,
+            novelty_tag="benchmark",
+            dataset_used="LIDC",
+        )
+        response = client.get(PAPERS_URL)
+        summary = response.data["results"][0]["aisummary"]
+        assert summary["one_line_summary"] == "One-liner."
+        assert summary["relevance_score"] == 4
+        assert summary["novelty_tag"] == "benchmark"
+        assert summary["dataset_used"] == "LIDC"
+        assert "key_findings_json" not in summary
+
+    def test_list_aisummary_null_when_unsummarized(self, auth_client):
+        client, user = auth_client
+        radar = RadarFactory(user=user)
+        PaperRadarFactory(radar=radar)
+        response = client.get(PAPERS_URL)
+        assert response.data["results"][0]["aisummary"] is None
+
+    def test_list_includes_user_action(self, auth_client):
+        client, user = auth_client
+        radar = RadarFactory(user=user)
+        pr = PaperRadarFactory(radar=radar)
+        UserPaperActionFactory(
+            user=user, paper=pr.paper, is_bookmarked=True, custom_tags_json=["thesis"]
+        )
+        response = client.get(PAPERS_URL)
+        action = response.data["results"][0]["user_action"]
+        assert action["is_bookmarked"] is True
+        assert action["is_read"] is False
+        assert action["custom_tags_json"] == ["thesis"]
+
+    def test_list_user_action_null_when_untouched(self, auth_client):
+        client, user = auth_client
+        radar = RadarFactory(user=user)
+        PaperRadarFactory(radar=radar)
+        response = client.get(PAPERS_URL)
+        assert response.data["results"][0]["user_action"] is None
+
+    def test_list_user_action_is_own_not_other_users(self, auth_client):
+        client, user = auth_client
+        radar = RadarFactory(user=user)
+        pr = PaperRadarFactory(radar=radar)
+        UserPaperActionFactory(user=UserFactory(), paper=pr.paper, is_bookmarked=True)
+        response = client.get(PAPERS_URL)
+        assert response.data["results"][0]["user_action"] is None
+
+    def test_list_query_count_is_constant(self, auth_client, django_assert_max_num_queries):
+        client, user = auth_client
+        radar = RadarFactory(user=user)
+        for _ in range(5):
+            pr = PaperRadarFactory(radar=radar)
+            AISummaryFactory(paper=pr.paper)
+            UserPaperActionFactory(user=user, paper=pr.paper)
+        with django_assert_max_num_queries(6):
+            response = client.get(PAPERS_URL)
+        assert len(response.data["results"]) == 5
+
+
+@pytest.mark.django_db
+class TestPaperDetailUserAction:
+    def test_detail_includes_user_action(self, auth_client):
+        client, user = auth_client
+        radar = RadarFactory(user=user)
+        pr = PaperRadarFactory(radar=radar)
+        UserPaperActionFactory(user=user, paper=pr.paper, notes_text="my note")
+        response = client.get(f"{PAPERS_URL}{pr.paper.id}/")
+        assert response.data["user_action"]["notes_text"] == "my note"
+
+    def test_detail_user_action_null_when_untouched(self, auth_client):
+        client, user = auth_client
+        radar = RadarFactory(user=user)
+        pr = PaperRadarFactory(radar=radar)
+        response = client.get(f"{PAPERS_URL}{pr.paper.id}/")
+        assert response.data["user_action"] is None

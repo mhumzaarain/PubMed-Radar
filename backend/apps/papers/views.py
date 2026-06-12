@@ -1,3 +1,4 @@
+from django.db.models import Prefetch
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -11,9 +12,18 @@ class PaperViewSet(viewsets.ReadOnlyModelViewSet):
     http_method_names = ["get", "patch", "head", "options"]
 
     def get_queryset(self):
-        qs = Paper.objects.filter(
-            paper_radars__radar__user=self.request.user
-        ).distinct()
+        qs = (
+            Paper.objects.filter(paper_radars__radar__user=self.request.user)
+            .distinct()
+            .select_related("aisummary")
+            .prefetch_related(
+                Prefetch(
+                    "user_actions",
+                    queryset=UserPaperAction.objects.filter(user=self.request.user),
+                    to_attr="my_actions",
+                )
+            )
+        )
 
         radar_id = self.request.query_params.get("radar")
         if radar_id:
