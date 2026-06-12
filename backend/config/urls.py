@@ -9,10 +9,8 @@ from rest_framework.response import Response
 @permission_classes([AllowAny])
 def api_root(request):
     return Response({
-        "auth": request.build_absolute_uri("/api/auth/"),
         "radars": request.build_absolute_uri("/api/radars/"),
         "papers": request.build_absolute_uri("/api/papers/"),
-        "admin": request.build_absolute_uri("/admin/"),
     })
 
 
@@ -23,10 +21,10 @@ def health_check(request):
 
 
 urlpatterns = [
-    path("", api_root),
     path("health/", health_check),
     path("admin/", admin.site.urls),
-    path("api/auth/", include("apps.users.urls")),
+    path("api/", api_root),
     path("api/radars/", include("apps.radars.urls")),
     path("api/papers/", include("apps.papers.urls")),
+    path("", include("apps.web.urls")),
 ]

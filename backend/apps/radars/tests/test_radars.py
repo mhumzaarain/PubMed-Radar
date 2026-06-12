@@ -1,19 +1,10 @@
 import pytest
-from rest_framework.test import APIClient
-from rest_framework_simplejwt.tokens import RefreshToken
 
 from apps.radars.factories import RadarFactory
 from apps.radars.models import Radar
 from apps.users.factories import UserFactory
 
 RADARS_URL = "/api/radars/"
-
-
-def make_auth_client(user):
-    client = APIClient()
-    refresh = RefreshToken.for_user(user)
-    client.credentials(HTTP_AUTHORIZATION=f"Bearer {str(refresh.access_token)}")
-    return client
 
 
 @pytest.mark.django_db
@@ -34,7 +25,7 @@ class TestRadarList:
 
     def test_list_unauthenticated(self, api_client):
         response = api_client.get(RADARS_URL)
-        assert response.status_code == 401
+        assert response.status_code == 403
 
     def test_list_excludes_other_users_radars(self, auth_client):
         client, _ = auth_client
@@ -88,7 +79,7 @@ class TestRadarCreate:
     def test_create_unauthenticated(self, api_client):
         payload = {"name": "Lung CT", "pubmed_query": "lung nodule AND CT"}
         response = api_client.post(RADARS_URL, payload)
-        assert response.status_code == 401
+        assert response.status_code == 403
 
 
 @pytest.mark.django_db

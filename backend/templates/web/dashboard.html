@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Dashboard — PubMed Radar{% endblock %}
+{% block content %}
+<h1>Your radars</h1>
+<ul id="radar-list" data-empty-text="No radars yet."></ul>
+{% endblock %}
+{% block scripts %}
+<script type="module" src="{% static 'js/dashboard.js' %}"></script>
+{% endblock %}

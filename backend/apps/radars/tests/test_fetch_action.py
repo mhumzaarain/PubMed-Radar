@@ -40,4 +40,4 @@ class TestFetchAction:
     def test_fetch_unauthenticated(self, api_client):
         radar = RadarFactory()
         response = api_client.post(f"{RADARS_URL}{radar.id}/fetch/")
-        assert response.status_code == 401
+        assert response.status_code == 403

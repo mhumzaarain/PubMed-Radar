@@ -1,0 +1,19 @@
+* { box-sizing: border-box; }
+body { margin: 0; font-family: system-ui, sans-serif; color: #1a1a2e; }
+.navbar {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 0.75rem 1.5rem; background: #16324f; color: #fff;
+}
+.navbar a.brand { color: #fff; text-decoration: none; font-weight: 700; }
+.nav-user { display: flex; gap: 0.75rem; align-items: center; }
+.nav-user form { margin: 0; }
+.link-button {
+  background: none; border: none; color: #9fc9eb; cursor: pointer;
+  text-decoration: underline; font-size: 1rem; padding: 0;
+}
+.container { max-width: 60rem; margin: 2rem auto; padding: 0 1.5rem; }
+.auth-form { max-width: 24rem; }
+.auth-form label { display: block; margin-top: 0.75rem; }
+.auth-form input { width: 100%; padding: 0.5rem; margin-top: 0.25rem; }
+.auth-form button { margin-top: 1rem; padding: 0.5rem 1.25rem; }
+.errorlist { color: #b00020; padding-left: 1rem; }

@@ -2,7 +2,6 @@ import pytest
 from procrastinate import testing
 from procrastinate.contrib.django import procrastinate_app
 from rest_framework.test import APIClient
-from rest_framework_simplejwt.tokens import RefreshToken
 
 from apps.users.factories import UserFactory
 
@@ -20,8 +19,7 @@ def user(db):
 @pytest.fixture
 def auth_client(user):
     client = APIClient()
-    refresh = RefreshToken.for_user(user)
-    client.credentials(HTTP_AUTHORIZATION=f"Bearer {str(refresh.access_token)}")
+    client.force_authenticate(user=user)
     return client, user
 
 

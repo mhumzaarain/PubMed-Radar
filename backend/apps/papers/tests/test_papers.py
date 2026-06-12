@@ -1,6 +1,4 @@
 import pytest
-from rest_framework.test import APIClient
-from rest_framework_simplejwt.tokens import RefreshToken
 
 from apps.papers.factories import (
     AISummaryFactory,
@@ -12,13 +10,6 @@ from apps.radars.factories import RadarFactory
 from apps.users.factories import UserFactory
 
 PAPERS_URL = "/api/papers/"
-
-
-def make_auth_client(user):
-    client = APIClient()
-    refresh = RefreshToken.for_user(user)
-    client.credentials(HTTP_AUTHORIZATION=f"Bearer {str(refresh.access_token)}")
-    return client
 
 
 @pytest.mark.django_db
@@ -101,7 +92,7 @@ class TestPaperList:
 
     def test_list_unauthenticated(self, api_client):
         response = api_client.get(PAPERS_URL)
-        assert response.status_code == 401
+        assert response.status_code == 403
 
 
 @pytest.mark.django_db
@@ -142,7 +133,7 @@ class TestPaperDetail:
     def test_retrieve_unauthenticated(self, api_client):
         paper = PaperFactory()
         response = api_client.get(f"{PAPERS_URL}{paper.id}/")
-        assert response.status_code == 401
+        assert response.status_code == 403
 
 
 @pytest.mark.django_db
@@ -234,4 +225,4 @@ class TestUserPaperActions:
         response = api_client.patch(
             f"{PAPERS_URL}{paper.id}/actions/", {"is_read": True}, format="json"
         )
-        assert response.status_code == 401
+        assert response.status_code == 403
