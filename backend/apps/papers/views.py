@@ -3,6 +3,7 @@ from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from .filters import filter_papers
 from .models import Paper, UserPaperAction
 from .serializers import PaperDetailSerializer, PaperListSerializer, UserPaperActionSerializer
 
@@ -24,20 +25,7 @@ class PaperViewSet(viewsets.ReadOnlyModelViewSet):
                 )
             )
         )
-
-        radar_id = self.request.query_params.get("radar")
-        if radar_id:
-            qs = qs.filter(paper_radars__radar__id=radar_id)
-
-        for field in ("is_read", "is_bookmarked", "is_dismissed"):
-            val = self.request.query_params.get(field)
-            if val is not None:
-                qs = qs.filter(
-                    user_actions__user=self.request.user,
-                    **{f"user_actions__{field}": val.lower() in ("true", "1")},
-                )
-
-        return qs.order_by("-publication_date")
+        return filter_papers(qs, self.request.user, self.request.query_params)
 
     def get_serializer_class(self):
         if self.action == "retrieve":
